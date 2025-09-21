@@ -35,7 +35,7 @@ def radar():
     fig.update_layout(
         height=500,  
         width=None,  
-        margin=dict(t=50, b=100, l=50, r=50),  # ✅ b=100 para dar espaço à legenda embaixo
+        margin=dict(t=50, b=100, l=50, r=50), 
         polar=dict(
             bgcolor='rgba(230, 255, 230, 0.8)',
             radialaxis=dict(
@@ -150,7 +150,7 @@ st.markdown("---")
 
 # Carregando dados
 
-df = pd.read_csv("Dados/Dados.csv", sep = ";")
+df = pd.read_csv("Neuromath/Dados/Dados.csv", sep = ";")
 df['DAt (BFP)'] = df['DAt (BFP)'].astype(int)
 
 col1, col2 = st.columns(2)
