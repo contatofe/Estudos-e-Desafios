@@ -167,7 +167,7 @@ with col1:
 
 with col2:
     with st.container(height=600, border=True):
-        st.markdown("<h3 style='text-align: center;'>Correlação de Pearson entre os testes</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>Correlação entre os testes</h3>", unsafe_allow_html=True)
         fig_corr = correlacao()
         st.pyplot(fig_corr, use_container_width=True)
         st.markdown("**|r| entre 0.8 e 1.0:** Correlação forte ou muito forte. \n\n **|r| entre 0.5 e 0.8:** Correlação moderada. \n\n **|r| entre 0.3 e 0.5:** Correlação fraca \n\n **|r| entre 0.0 e 0.3:** Correlação desprezível ou muito fraca.")
