@@ -120,7 +120,7 @@ def correlacao():
     custom_cmap = mcolors.LinearSegmentedColormap.from_list("lilas_branco_verde", colors)
 
     # Criando gráfico
-    corr = (df.drop(columns=['Etiqueta'])).corr(method="pearson")
+    corr = (df.drop(columns=['Etiqueta'])).corr(method="spearman")
 
     plt.figure(figsize=(8, 4))
     sns.heatmap(corr, annot=True, cmap=custom_cmap, vmin=-1, vmax=1, center=0)
