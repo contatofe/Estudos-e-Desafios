@@ -196,6 +196,9 @@ with col2:
 
 # Gráfico 3
 
+df_barras = df.drop(columns=['Funcionamento PNa Esperado', 'Funcionamento PNa de Referência'])
+df_barras['Etiqueta'] = df['Etiqueta'].str.replace('Funcionamento PNa Existente - PAM01', 'PAM01')
+
 st.markdown("---")  
 st.markdown("<h3 style='text-align: center;'>Comparação do desempenho individual vs média</h3>", unsafe_allow_html=True)
 
@@ -205,7 +208,7 @@ tabs = st.tabs(colunas_avaliacao)
 
 for tab, coluna in zip(tabs, colunas_avaliacao):
     with tab:
-        fig_barras = barras(df, coluna)  
+        fig_barras = barras(df_barras, coluna)  
         st.plotly_chart(fig_barras, use_container_width=True)
 
 # Tabela
