@@ -175,6 +175,10 @@ categorias = ['Funcionamento PNa Esperado', 'Funcionamento PNa de Referência', 
 
 df_red = df[df['Etiqueta'].isin(categorias)]
 
+df_alt = df[~df['Etiqueta'].isin(['Funcionamento PNa Esperado',
+                                     'Funcionamento PNa de Referência'])].copy()
+df_alt['Etiqueta'] = df['Etiqueta'].str.replace('Funcionamento PNa Existente - PAM01', 'PAM01')
+
 col1, col2 = st.columns(2)
 
 # Gráfico 1
@@ -195,10 +199,6 @@ with col2:
         st.markdown("**|r| entre 0.8 e 1.0:** Correlação forte ou muito forte. \n\n **|r| entre 0.5 e 0.8:** Correlação moderada. \n\n **|r| entre 0.3 e 0.5:** Correlação fraca \n\n **|r| entre 0.0 e 0.3:** Correlação desprezível ou muito fraca.")
 
 # Gráfico 3
-
-df_alt = df[~df['Etiqueta'].isin(['Funcionamento PNa Esperado',
-                                     'Funcionamento PNa de Referência'])].copy()
-df_alt['Etiqueta'] = df['Etiqueta'].str.replace('Funcionamento PNa Existente - PAM01', 'PAM01')
 
 st.markdown("---")  
 st.markdown("<h3 style='text-align: center;'>Comparação do desempenho individual vs média</h3>", unsafe_allow_html=True)
