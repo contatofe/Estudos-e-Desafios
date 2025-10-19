@@ -82,8 +82,8 @@ def radar(df: pd.DataFrame) -> go.Figure:
 
 def barras(df, coluna_avaliacao):
 
-  participantes = df['Etiqueta'].tolist()
-  avaliacoes = df[coluna_avaliacao].tolist()
+  participantes = df_alt['Etiqueta'].tolist()
+  avaliacoes = df_alt[coluna_avaliacao].tolist()
 
   #Calcula média
   media = sum(avaliacoes) / len(avaliacoes)
@@ -134,7 +134,7 @@ def correlacao():
     custom_cmap = mcolors.LinearSegmentedColormap.from_list("lilas_branco_verde", colors)
 
     # Criando gráfico
-    corr = (df.drop(columns=['Etiqueta'])).corr(method="spearman")
+    corr = (df_alt.drop(columns=['Etiqueta'])).corr(method="spearman")
 
     plt.figure(figsize=(8, 4))
     sns.heatmap(corr, annot=True, cmap=custom_cmap, vmin=-1, vmax=1, center=0)
@@ -196,9 +196,9 @@ with col2:
 
 # Gráfico 3
 
-df_barras = df[~df['Etiqueta'].isin(['Funcionamento PNa Esperado',
+df_alt = df[~df['Etiqueta'].isin(['Funcionamento PNa Esperado',
                                      'Funcionamento PNa de Referência'])].copy()
-df_barras['Etiqueta'] = df['Etiqueta'].str.replace('Funcionamento PNa Existente - PAM01', 'PAM01')
+df_alt['Etiqueta'] = df['Etiqueta'].str.replace('Funcionamento PNa Existente - PAM01', 'PAM01')
 
 st.markdown("---")  
 st.markdown("<h3 style='text-align: center;'>Comparação do desempenho individual vs média</h3>", unsafe_allow_html=True)
@@ -209,7 +209,7 @@ tabs = st.tabs(colunas_avaliacao)
 
 for tab, coluna in zip(tabs, colunas_avaliacao):
     with tab:
-        fig_barras = barras(df_barras, coluna)  
+        fig_barras = barras(df_alt, coluna)  
         st.plotly_chart(fig_barras, use_container_width=True)
 
 # Tabela
@@ -217,4 +217,4 @@ for tab, coluna in zip(tabs, colunas_avaliacao):
 
 st.markdown("---")  
 st.markdown("<h3 style='text-align: center;'>Dados Tabelados</h3>", unsafe_allow_html=True)
-st.dataframe(df, hide_index=True, use_container_width=True, height = 525)
+st.dataframe(df_alt, hide_index=True, use_container_width=True, height = 525)
