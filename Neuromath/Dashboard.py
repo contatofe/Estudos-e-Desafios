@@ -66,7 +66,6 @@ def radar(df: pd.DataFrame) -> go.Figure:
         ))
 
     fig.update_layout(
-        title=dict(text='Perfil Psiconeuroatencional (PNa) de PAM01 em noções matemáticas', x=0.5, font=dict(size=24)),
         legend=dict(orientation='h', yanchor='top', y=-0.2, xanchor='center', x=0.5),
         polar=dict(
             bgcolor='rgba(170,223,54,0.05)',
@@ -182,7 +181,7 @@ col1, col2 = st.columns(2)
 
 with col1:
     with st.container(height=600, border=True):
-        st.markdown("<h3 style='text-align: center;'>Visualização dos resultados dos testes</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>Perfil Psiconeuroatencional (PNa) de PAM01 em noções matemáticas</h3>", unsafe_allow_html=True)
         fig_radar = radar(df)
         st.plotly_chart(fig_radar, use_container_width=True)
 
