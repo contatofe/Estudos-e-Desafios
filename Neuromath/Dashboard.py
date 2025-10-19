@@ -196,7 +196,8 @@ with col2:
 
 # Gráfico 3
 
-df_barras = df.drop(columns=['Funcionamento PNa Esperado', 'Funcionamento PNa de Referência'])
+df_barras = df[~df['Etiqueta'].isin(['Funcionamento PNa Esperado',
+                                     'Funcionamento PNa de Referência'])].copy()
 df_barras['Etiqueta'] = df['Etiqueta'].str.replace('Funcionamento PNa Existente - PAM01', 'PAM01')
 
 st.markdown("---")  
