@@ -13,57 +13,72 @@ import matplotlib.colors as mcolors
 
 #Funções
 
-def radar():
-    categorias = df.columns[1:].tolist() 
-    categorias_radar = categorias + [categorias[0]]
+def radar(df: pd.DataFrame) -> go.Figure:
+    # Mantém APENAS as 3 séries desejadas
+    categorias_keep = [
+        'Funcionamento PNa Existente - PAM01',
+        'Funcionamento PNa de Referência',
+        'Funcionamento PNa Esperado'
+    ]
+    df_red = df[df['Etiqueta'].isin(categorias_keep)].copy()
+
+    # (opcional) mover a 1ª linha para o final por estética
+    if len(df_red) > 0:
+        df_plot = pd.concat([df_red.iloc[1:], df_red.iloc[[0]]], ignore_index=True)
+    else:
+        df_plot = df_red.copy()
+
+    # Colunas de métricas
+    categorias_cols = df_plot.columns[1:].tolist()
+    if not categorias_cols:
+        raise ValueError("Não há colunas de métricas após 'Etiqueta'.")
+
+    # Garantir numérico
+    df_plot[categorias_cols] = df_plot[categorias_cols].apply(pd.to_numeric, errors='coerce')
+
+    # Fechar o polígono
+    categorias_radar = categorias_cols + [categorias_cols[0]]
+
+    cores_destaque = {
+        'Funcionamento PNa Esperado': ('rgba(234,116,111,1.0)', 'rgba(234,116,111,0.20)'),
+        'Funcionamento PNa de Referência': ('rgba(88,183,248,1.0)', 'rgba(88,183,248,0.20)'),
+        # A existente (PAM01) fica na cor padrão abaixo
+    }
+    cor_padrao_linha = 'rgb(63,78,28)'
+    cor_padrao_fill  = 'rgba(154,193,69,0.40)'
 
     fig = go.Figure()
+    for _, row in df_plot.iterrows():
+        r_vals = row[categorias_cols].tolist()
+        r_vals.append(r_vals[0])  # fecha
 
-    for i, (index, row) in enumerate(df.iterrows()):
-        valores = row[1:].values.tolist()
-        valores += valores[:1]  # Fechar o polígono
-        
+        cor_linha, cor_fill = cores_destaque.get(
+            row['Etiqueta'], (cor_padrao_linha, cor_padrao_fill)
+        )
+
         fig.add_trace(go.Scatterpolar(
-            r=valores,
+            r=r_vals,
             theta=categorias_radar,
             fill='toself',
             name=row['Etiqueta'],
-            line_color='lightgreen',
-            fillcolor='rgba(0, 200, 0, 0.2)'
+            line=dict(color=cor_linha),
+            fillcolor=cor_fill
         ))
 
     fig.update_layout(
-        height=500,  
-        width=None,  
-        margin=dict(t=50, b=100, l=50, r=50),  # ✅ b=100 para dar espaço à legenda embaixo
+        title=dict(text='Perfil Psiconeuroatencional (PNa) de PAM01 em noções matemáticas', x=0.5, font=dict(size=24)),
+        legend=dict(orientation='h', yanchor='top', y=-0.2, xanchor='center', x=0.5),
         polar=dict(
-            bgcolor='rgba(230, 255, 230, 0.8)',
-            radialaxis=dict(
-                visible=True,
-                range=[0, 10],
-                tickvals=[0, 2, 4, 6, 8, 10],
-                gridcolor='white',
-                linecolor='white'
-            ),
-            angularaxis=dict(
-                gridcolor='rgba(255, 255, 255, 0.5)',
-                linecolor='rgba(255, 255, 255, 0.8)',
-                rotation=90
-            )
+            bgcolor='rgba(170,223,54,0.05)',
+            radialaxis=dict(visible=True, range=[0, 10], tickvals=[0, 2, 4, 6, 8, 10],
+                            gridcolor='white', linecolor='white'),
+            angularaxis=dict(gridcolor='rgba(139,184,56,0.10)', linecolor='rgba(139,184,56,0.10)',
+                             rotation=90, direction='clockwise')
         ),
-        # ✅ legend FORA do polar — no nível principal do layout
-        legend=dict(
-            orientation="h",      
-            yanchor="bottom",       
-            y=-0.3,                
-            xanchor="center",       
-            x=0.5,                  
-            font=dict(size=15),     
-            traceorder="normal"     
-        )
+        margin=dict(l=40, r=40, t=80, b=80)
     )
-
     return fig
+
 
 
 def barras(df, coluna_avaliacao):
@@ -75,7 +90,7 @@ def barras(df, coluna_avaliacao):
   media = sum(avaliacoes) / len(avaliacoes)
 
   #Simula cores dependendo da nota
-  cores = ['#A8E6A1' if avaliacao >= media else '#B19CD9' for avaliacao in avaliacoes]
+  cores = ['#9AC145' if avaliacao >= media else '#EA746F' for avaliacao in avaliacoes]
 
   fig = go.Figure()
 
@@ -106,21 +121,21 @@ def barras(df, coluna_avaliacao):
     xaxis_title="Participante",
     showlegend=False,
     height=500,
-    plot_bgcolor='rgba(230, 255, 230, 0.5)',   
+    plot_bgcolor='rgba(170,223,54,0.05)',   
   )
   return fig
 
 def correlacao():
 
     # Criando paleta de cores
-    colors = ['#B19CD9',  # lilás (ex: amethyst / light purple)
+    colors = ['#EA746F',  # vermelho
             '#FFFFFF',  # branco
-            '#A8E6A1']  # verde claro (mint green / light green)
+            '#9AC145']  # verde claro (mint green / light green)
 
     custom_cmap = mcolors.LinearSegmentedColormap.from_list("lilas_branco_verde", colors)
 
     # Criando gráfico
-    corr = (df.drop(columns=['Etiqueta'])).corr(method="pearson")
+    corr = (df.drop(columns=['Etiqueta'])).corr(method="spearman")
 
     plt.figure(figsize=(8, 4))
     sns.heatmap(corr, annot=True, cmap=custom_cmap, vmin=-1, vmax=1, center=0)
@@ -150,8 +165,16 @@ st.markdown("---")
 
 # Carregando dados
 
-df = pd.read_csv("Dados/Dados.csv", sep = ";")
-df['DAt (BFP)'] = df['DAt (BFP)'].astype(int)
+df = pd.read_csv("Neuromath/Dados/Dados_v2.csv", sep = ",")
+#df['DAt (BFP)'] = df['DAt (BFP)'].astype(int)
+
+df['Etiqueta'] = df['Etiqueta'].str.replace('PAM01', 'Funcionamento PNa Existente - PAM01')
+df['Etiqueta'] = df['Etiqueta'].str.replace('Valores Esperados', 'Funcionamento PNa Esperado')
+df['Etiqueta'] = df['Etiqueta'].str.replace('Valores de Referência', 'Funcionamento PNa de Referência')
+
+categorias = ['Funcionamento PNa Esperado', 'Funcionamento PNa de Referência', 'Funcionamento PNa Existente - PAM01']
+
+df_red = df[df['Etiqueta'].isin(categorias)]
 
 col1, col2 = st.columns(2)
 
@@ -160,14 +183,14 @@ col1, col2 = st.columns(2)
 with col1:
     with st.container(height=600, border=True):
         st.markdown("<h3 style='text-align: center;'>Visualização dos resultados dos testes</h3>", unsafe_allow_html=True)
-        fig_radar = radar()
+        fig_radar = radar(df)
         st.plotly_chart(fig_radar, use_container_width=True)
 
 # Gráfico 2
 
 with col2:
     with st.container(height=600, border=True):
-        st.markdown("<h3 style='text-align: center;'>Correlação de Pearson entre os testes</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>Correlação entre os testes</h3>", unsafe_allow_html=True)
         fig_corr = correlacao()
         st.pyplot(fig_corr, use_container_width=True)
         st.markdown("**|r| entre 0.8 e 1.0:** Correlação forte ou muito forte. \n\n **|r| entre 0.5 e 0.8:** Correlação moderada. \n\n **|r| entre 0.3 e 0.5:** Correlação fraca \n\n **|r| entre 0.0 e 0.3:** Correlação desprezível ou muito fraca.")
